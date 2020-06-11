@@ -34,6 +34,9 @@ function fillGrid() {
 function revealAll() {
   for (var i = 0; i < cols; i++) {
     for (var j = 0; j < rows; j++) {
+      if (grid[i][j].flagged) {
+        grid[i][j].flag();
+      }
       grid[i][j].reveal();
     }
   }
@@ -48,12 +51,33 @@ function make2DArray(cols, rows) {
 }
 
 function mousePressed() {
-  for (var i = 0; i < cols; i++) {
+    for (var i = 0; i < cols; i++) {
       for (var j = 0; j < rows; j++) {
+        var cell = grid[i][j];
         
-        if (grid[i][j].contains(mouseX, mouseY)) {
-          grid[i][j].reveal();
+        if (cell.contains(mouseX, mouseY)) {
+          if (mouseButton === LEFT) {
+            cell.reveal();
+            if (!cell.mine) {
+              checkGame();
+            }
+          } else if (mouseButton === RIGHT) {
+            cell.flag();
+          }
         }
       }
     }
+}
+
+function checkGame() {
+  for (var i = 0; i < cols; i++) {
+      for (var j = 0; j < rows; j++) {
+        var cell = grid[i][j];
+        
+        if (!cell.revealed && !cell.mine) {
+            return;
+        }
+      }
+  }
+  console.log("You win!");
 }

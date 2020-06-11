@@ -1,6 +1,3 @@
-var revealed;
-var mine;
-
 class cell {
   constructor(i, j) {
     this.i = i;
@@ -13,15 +10,16 @@ class cell {
       this.mine = false;
     }
     this.revealed = false;
+    this.flagged = false;
   }
   
   show() {
     stroke(0);
     fill(150);
+    var centerX = this.x + w/2;
+    var centerY = this.y + h/2;
     
     if (this.revealed) {
-      var centerX = this.x + w/2;
-      var centerY = this.y + h/2;
       var iconSize = w/2;
       
       if (this.mine) {
@@ -37,12 +35,32 @@ class cell {
         }
       }
       noFill();
+    } else if (this.flagged) {
+      var lineStartX = this.x;
+      var lineEndX = this.x;
+      var lineStartY = this.y + h/4;
+      var lineEndY = this.y + (3*h/4);
+      // push();
+      fill(255,0,0);
+      // rect(this.x-5, this.y-5, 10, 10);
+      // pop();
+      // line(lineStartX, lineStartY, lineEndX, lineEndY);
     }
     rect(this.x, this.y, w, h);
   }
   
+  flag() {
+    if (!this.flagged) {
+      this.flagged = true;
+    } else if (this.flagged) {
+      this.flagged = false;
+    }
+  }
+  
   reveal() {
-    this.revealed = true;
+    if (!this.flagged) {
+      this.revealed = true;
+    }
   }
   
   countMines() {
@@ -75,8 +93,9 @@ class cell {
         
         if(i > -1 && i < cols && j > -1 && j < rows) {
           var neighbor = grid[i][j];
-          if (!neighbor.mine && !neighbor.revealed) {
+          if (!neighbor.mine && !neighbor.revealed && !neighbor.flagged) {
             neighbor.reveal();
+            checkGame();
             if (neighbor.countMines() == 0) {
               neighbor.revealNeighbors();
             }
